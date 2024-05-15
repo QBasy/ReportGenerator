@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="user_report"
+              language="groovy"
+              pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20"
+              uuid="0bf6c571-f46c-42f2-949f-68e3c37a1b93">
+    <queryString>
+        <![CDATA[SELECT username, password, email FROM user_]]>
+    </queryString>
+    <field name="username" class="java.lang.String"/>
+    <field name="password" class="java.lang.String"/>
+    <field name="email" class="java.lang.String"/>
+    <columnHeader>
+        <band height="30">
+            <staticText>
+                <reportElement x="0" y="0" width="100" height="30" uuid="32bdc66b-bf97-4840-b00b-8a46d4aa17bb"/>
+                <text><![CDATA[Username]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="100" y="0" width="100" height="30" uuid="b84326f8-97c4-49a1-b72b-28f9d3bf3f40"/>
+                <text><![CDATA[Password]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="200" y="0" width="100" height="30" uuid="adecf2f3-6d63-4d8f-93f3-1d58f1aa3028"/>
+                <text><![CDATA[Email]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+    <detail>
+        <band height="30">
+            <textField>
+                <reportElement x="0" y="0" width="100" height="30" uuid="7c2b053d-84f9-4763-a4a7-08d6ff7f1eeb"/>
+                <textFieldExpression><![CDATA[$F{username}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="90" y="0" width="29" height="1"/>
+            </line>
+            <textField>
+                <reportElement x="100" y="0" width="100" height="30" uuid="d02ae00e-4888-46b2-99b8-fd98c8333765"/>
+                <textFieldExpression><![CDATA[$F{password}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="190" y="0" width="29" height="1"/>
+            </line>
+            <textField>
+                <reportElement x="200" y="0" width="100" height="30" uuid="c440d7f3-123b-4d4e-bb78-4a0f87817971"/>
+                <textFieldExpression><![CDATA[$F{email}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="29" width="1" height="555"/>
+            </line>
+        </band>
+    </detail>
+</jasperReport>
