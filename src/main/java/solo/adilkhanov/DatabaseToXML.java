@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -36,10 +37,10 @@ public class DatabaseToXML {
         Map<String, String> columns = new HashMap<>();
 
         String query = "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '" + tableName + "'";
-        try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) {
-                String columnName = rs.getString("column_name");
-                String dataType = rs.getString("data_type");
+        try (Statement stmt = connection.createStatement(); ResultSet resultSet = stmt.executeQuery(query)) {
+            while (resultSet.next()) {
+                String columnName = resultSet.getString("column_name");
+                String dataType = resultSet.getString("data_type");
                 if (columnsName == null || columnsName.length == 0 || containsIgnoreCase(columnsName, columnName)) {
                     columns.put(columnName, mapDataType(dataType));
                 }
@@ -59,18 +60,12 @@ public class DatabaseToXML {
     }
 
     private static String mapDataType(String dataType) {
-        switch (dataType) {
-            case "character varying":
-            case "varchar":
-            case "text":
-                return "java.lang.String";
-            case "integer":
-                return "java.lang.Integer";
-            case "boolean":
-                return "java.lang.Boolean";
-            default:
-                return "java.lang.Object";
-        }
+        return switch (dataType) {
+            case "character varying", "varchar", "text" -> "java.lang.String";
+            case "integer" -> "java.lang.Integer";
+            case "boolean" -> "java.lang.Boolean";
+            default -> "java.lang.Object";
+        };
     }
 
     private static void generateXML(Map<String, String> columns, String tableName, String[] columnsName) {
@@ -127,7 +122,7 @@ public class DatabaseToXML {
 
             Element staticTextTitle = doc.createElement("staticText");
             Element reportElementTitle = doc.createElement("reportElement");
-            reportElementTitle.setAttribute("x", "170");
+            reportElementTitle.setAttribute("x", "140");
             reportElementTitle.setAttribute("y", "0");
             reportElementTitle.setAttribute("width", "290");
             reportElementTitle.setAttribute("height", "20");
@@ -139,6 +134,7 @@ public class DatabaseToXML {
             fontTitle.setAttribute("fontName", "Times New Roman");
             fontTitle.setAttribute("size", "14");
             fontTitle.setAttribute("isBold", "true");
+            textElementTitle.setAttribute("textAlignment", "Center");
             textElementTitle.appendChild(fontTitle);
 
             Element textTitle = doc.createElement("text");
@@ -149,11 +145,12 @@ public class DatabaseToXML {
             title.appendChild(titleBand);
             rootElement.appendChild(title);
 
+            new Scanner(System.in).nextLine();
             Element columnHeader = doc.createElement("columnHeader");
             Element band = doc.createElement("band");
             band.setAttribute("height", "30");
 
-            int x = 0;
+            int x = 90;
             for (String columnName : columns.keySet()) {
                 Element staticText = doc.createElement("staticText");
                 Element reportElement = doc.createElement("reportElement");
@@ -163,7 +160,7 @@ public class DatabaseToXML {
                 reportElement.setAttribute("height", "30");
                 staticText.appendChild(reportElement);
 
-                /*Element box = doc.createElement("box");
+                Element box = doc.createElement("box");
                 box.setAttribute("topPadding", "0");
                 box.setAttribute("leftPadding", "0");
                 box.setAttribute("bottomPadding", "0");
@@ -189,7 +186,7 @@ public class DatabaseToXML {
                 staticText.appendChild(box);
 
                 Element textElement = doc.createElement("textElement");
-                textElement.setAttribute("textAllignment", "Center");
+                textElement.setAttribute("textAlignment", "Center");
 
                 Element font = doc.createElement("font");
                 font.setAttribute("fontName", "Times New Roman");
@@ -202,7 +199,7 @@ public class DatabaseToXML {
                 textElement.appendChild(font);
                 textElement.appendChild(paragraph);
 
-                staticText.appendChild(textElement);*/
+                staticText.appendChild(textElement);
 
                 Element text = doc.createElement("text");
                 text.appendChild(doc.createCDATASection(columnName));
@@ -218,7 +215,7 @@ public class DatabaseToXML {
             band = doc.createElement("band");
             band.setAttribute("height", "30");
 
-            x = 0;
+            x = 90;
             for (String columnName : columns.keySet()) {
                 Element textField = doc.createElement("textField");
                 Element reportElement = doc.createElement("reportElement");
@@ -227,6 +224,47 @@ public class DatabaseToXML {
                 reportElement.setAttribute("width", "100");
                 reportElement.setAttribute("height", "30");
                 textField.appendChild(reportElement);
+
+                Element box = doc.createElement("box");
+                box.setAttribute("topPadding", "0");
+                box.setAttribute("leftPadding", "0");
+                box.setAttribute("bottomPadding", "0");
+                box.setAttribute("rightPadding", "0");
+
+                Element topPen = doc.createElement("topPen");
+                topPen.setAttribute("lineWidth", "1.0");
+
+                Element leftPen = doc.createElement("leftPen");
+                leftPen.setAttribute("lineWidth", "1.0");
+
+                Element bottomPen = doc.createElement("bottomPen");
+                bottomPen.setAttribute("lineWidth", "1.0");
+
+                Element rightPen = doc.createElement("rightPen");
+                rightPen.setAttribute("lineWidth", "1.0");
+
+                box.appendChild(topPen);
+                box.appendChild(leftPen);
+                box.appendChild(bottomPen);
+                box.appendChild(rightPen);
+
+                textField.appendChild(box);
+
+                Element textElement = doc.createElement("textElement");
+                textElement.setAttribute("textAlignment", "Center");
+
+                Element font = doc.createElement("font");
+                font.setAttribute("fontName", "Times New Roman");
+                font.setAttribute("size", "10");
+                font.setAttribute("isBold", "true");
+
+                Element paragraph = doc.createElement("paragraph");
+                paragraph.setAttribute("lineSpacing", "Single");
+
+                textElement.appendChild(font);
+                textElement.appendChild(paragraph);
+
+                textField.appendChild(textElement);
 
                 Element textFieldExpression = doc.createElement("textFieldExpression");
                 textFieldExpression.appendChild(doc.createCDATASection("$F{" + columnName + "}"));
