@@ -68,7 +68,6 @@ public class DatabaseToXML {
                 return "java.lang.Integer";
             case "boolean":
                 return "java.lang.Boolean";
-            // Add more type mappings as needed
             default:
                 return "java.lang.Object";
         }
@@ -121,6 +120,35 @@ public class DatabaseToXML {
                 rootElement.appendChild(field);
             }
 
+            Element title = doc.createElement("title");
+            Element titleBand = doc.createElement("band");
+            titleBand.setAttribute("height", "60");
+            titleBand.setAttribute("splitType", "Stretch");
+
+            Element staticTextTitle = doc.createElement("staticText");
+            Element reportElementTitle = doc.createElement("reportElement");
+            reportElementTitle.setAttribute("x", "170");
+            reportElementTitle.setAttribute("y", "0");
+            reportElementTitle.setAttribute("width", "290");
+            reportElementTitle.setAttribute("height", "20");
+            reportElementTitle.setAttribute("uuid", "9fd52a6a-9375-4541-b567-4d27b121d863");
+            staticTextTitle.appendChild(reportElementTitle);
+
+            Element textElementTitle = doc.createElement("textElement");
+            Element fontTitle = doc.createElement("font");
+            fontTitle.setAttribute("fontName", "Times New Roman");
+            fontTitle.setAttribute("size", "14");
+            fontTitle.setAttribute("isBold", "true");
+            textElementTitle.appendChild(fontTitle);
+
+            Element textTitle = doc.createElement("text");
+            textTitle.appendChild(doc.createCDATASection(tableName));
+            staticTextTitle.appendChild(textElementTitle);
+            staticTextTitle.appendChild(textTitle);
+            titleBand.appendChild(staticTextTitle);
+            title.appendChild(titleBand);
+            rootElement.appendChild(title);
+
             Element columnHeader = doc.createElement("columnHeader");
             Element band = doc.createElement("band");
             band.setAttribute("height", "30");
@@ -134,6 +162,47 @@ public class DatabaseToXML {
                 reportElement.setAttribute("width", "100");
                 reportElement.setAttribute("height", "30");
                 staticText.appendChild(reportElement);
+
+                /*Element box = doc.createElement("box");
+                box.setAttribute("topPadding", "0");
+                box.setAttribute("leftPadding", "0");
+                box.setAttribute("bottomPadding", "0");
+                box.setAttribute("rightPadding", "0");
+
+                Element topPen = doc.createElement("topPen");
+                topPen.setAttribute("lineWidth", "1.0");
+
+                Element leftPen = doc.createElement("leftPen");
+                leftPen.setAttribute("lineWidth", "1.0");
+
+                Element bottomPen  = doc.createElement("bottomPen");
+                bottomPen.setAttribute("lineWidth", "1.0");
+
+                Element rightPen = doc.createElement("rightPen");
+                rightPen.setAttribute("lineWidth", "1.0");
+
+                box.appendChild(topPen);
+                box.appendChild(leftPen);
+                box.appendChild(bottomPen);
+                box.appendChild(rightPen);
+
+                staticText.appendChild(box);
+
+                Element textElement = doc.createElement("textElement");
+                textElement.setAttribute("textAllignment", "Center");
+
+                Element font = doc.createElement("font");
+                font.setAttribute("fontName", "Times New Roman");
+                font.setAttribute("size", "10");
+                font.setAttribute("isBold", "true");
+
+                Element paragraph = doc.createElement("paragraph");
+                paragraph.setAttribute("lineSpacing", "Single");
+
+                textElement.appendChild(font);
+                textElement.appendChild(paragraph);
+
+                staticText.appendChild(textElement);*/
 
                 Element text = doc.createElement("text");
                 text.appendChild(doc.createCDATASection(columnName));
