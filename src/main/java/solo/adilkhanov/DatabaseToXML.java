@@ -2,13 +2,11 @@ package solo.adilkhanov;
 
 import java.io.File;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,11 +19,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class DatabaseToXML {
-    public static void getXML(String tableName) {
+    public static void getXML(String tableName, String[] columnsName) {
         try (Connection connection = PostgresSQLDB.connect()) {
-            Map<String, String> columns = getTableStructure(connection, tableName);
+            Map<String, String> columns = getTableStructure(connection, tableName, columnsName);
 
-            generateXML(columns, tableName);
+            generateXML(columns, tableName, columnsName);
 
             System.out.println("File saved!");
 
@@ -34,19 +32,30 @@ public class DatabaseToXML {
         }
     }
 
-    private static Map<String, String> getTableStructure(Connection connection, String tableName) throws SQLException {
+    private static Map<String, String> getTableStructure(Connection connection, String tableName, String[] columnsName) throws SQLException {
         Map<String, String> columns = new HashMap<>();
-        String query = "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '" + tableName + "'";
 
+        String query = "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '" + tableName + "'";
         try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
                 String columnName = rs.getString("column_name");
                 String dataType = rs.getString("data_type");
-                columns.put(columnName, mapDataType(dataType));
+                if (columnsName == null || columnsName.length == 0 || containsIgnoreCase(columnsName, columnName)) {
+                    columns.put(columnName, mapDataType(dataType));
+                }
             }
         }
 
         return columns;
+    }
+
+    private static boolean containsIgnoreCase(String[] array, String str) {
+        for (String s : array) {
+            if (s.equalsIgnoreCase(str)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String mapDataType(String dataType) {
@@ -65,7 +74,7 @@ public class DatabaseToXML {
         }
     }
 
-    private static void generateXML(Map<String, String> columns, String tableName) {
+    private static void generateXML(Map<String, String> columns, String tableName, String[] columnsName) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -93,10 +102,10 @@ public class DatabaseToXML {
             }
 
             Element queryString = doc.createElement("queryString");
-            int n = new Scanner(System.in).nextInt();
+            int n = columnsName.length;
             String columnsNames = "";
             for (int i = 0; i < n; i++) {
-                columnsNames += new Scanner(System.in).nextLine();
+                columnsNames += columnsName[i];
                 if (i != n - 1) {
                     columnsNames += ",";
                 }
@@ -163,7 +172,7 @@ public class DatabaseToXML {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File( PropertiesReader.getProperties("exportPath") + tableName + "_report.jrxml"));
+            StreamResult result = new StreamResult(new File( PropertiesReader.getProperties("importPath") + tableName + "_report.jrxml"));
 
             transformer.transform(source, result);
 

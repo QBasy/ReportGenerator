@@ -1,12 +1,9 @@
 package solo.adilkhanov;
 
-import javax.xml.crypto.Data;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Map;
-
 public class Main {
     public static void main(String[] args) {
-        DatabaseToXML.getXML("user_");
+        String[] columns = {"username", "active", "first_name"};
+        DatabaseToXML.getXML("user_", columns);
+        ReportGenerator.generateReport("user__report.jrxml");
     }
 }
