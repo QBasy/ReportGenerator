@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              bottomMargin="20" columnWidth="555" language="groovy" leftMargin="20" name="user__report"
+              pageHeight="842" pageWidth="595" rightMargin="20" topMargin="20" uuid="538216df-b383-4680-9c9c-b74d1a2b1090"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd">
+    <queryString>
+        <![CDATA[SELECT * FROM user_]]>
+    </queryString>
+    <field class="java.lang.String" name="password"/>
+    <field class="java.lang.Boolean" name="active"/>
+    <field class="java.lang.String" name="last_name"/>
+    <field class="java.lang.Object" name="id"/>
+    <field class="java.lang.String" name="time_zone_id"/>
+    <field class="java.lang.Integer" name="version"/>
+    <field class="java.lang.String" name="first_name"/>
+    <field class="java.lang.String" name="email"/>
+    <field class="java.lang.String" name="username"/>
+    <columnHeader><band height="30">
+        <staticText>
+            <reportElement height="30" width="100" x="0" y="0"/>
+            <text>
+                <![CDATA[password]]>
+            </text>
+        </staticText>
+        <staticText>
+            <reportElement height="30" width="100" x="100" y="0"/>
+            <text><![CDATA[active]]></text>
+        </staticText>
+        <staticText>
+            <reportElement height="30" width="100" x="200" y="0"/>
+            <text><![CDATA[last_name]]></text>
+        </staticText>
+        <staticText>
+            <reportElement height="30" width="100" x="300" y="0"/>
+            <text><![CDATA[id]]></text>
+        </staticText>
+        <staticText>
+            <reportElement height="30" width="100" x="400" y="0"/>
+            <text><![CDATA[time_zone_id]]></text>
+        </staticText>
+        <staticText>
+            <reportElement height="30" width="100" x="500" y="0"/>
+            <text><![CDATA[version]]></text>
+        </staticText>
+        <staticText>
+            <reportElement height="30" width="100" x="600" y="0"/>
+            <text><![CDATA[first_name]]></text>
+        </staticText>
+        <staticText>
+            <reportElement height="30" width="100" x="700" y="0"/>
+            <text><![CDATA[email]]></text>
+        </staticText>
+        <staticText>
+            <reportElement height="30" width="100" x="800" y="0"/>
+            <text><![CDATA[username]]></text>
+        </staticText>
+    </band>
+    </columnHeader>
+    <detail>
+        <band height="30">
+            <textField>
+                <reportElement height="30" width="100" x="0" y="0"/>
+                <textFieldExpression><![CDATA[$F{password}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement height="30" width="100" x="100" y="0"/><textFieldExpression><![CDATA[$F{active}]]></textFieldExpression></textField><textField><reportElement height="30" width="100" x="200" y="0"/><textFieldExpression><![CDATA[$F{last_name}]]></textFieldExpression></textField><textField><reportElement height="30" width="100" x="300" y="0"/><textFieldExpression><![CDATA[$F{id}]]></textFieldExpression></textField><textField><reportElement height="30" width="100" x="400" y="0"/><textFieldExpression><![CDATA[$F{time_zone_id}]]></textFieldExpression></textField><textField><reportElement height="30" width="100" x="500" y="0"/><textFieldExpression><![CDATA[$F{version}]]></textFieldExpression></textField><textField><reportElement height="30" width="100" x="600" y="0"/><textFieldExpression><![CDATA[$F{first_name}]]></textFieldExpression></textField><textField><reportElement height="30" width="100" x="700" y="0"/><textFieldExpression><![CDATA[$F{email}]]></textFieldExpression></textField><textField><reportElement height="30" width="100" x="800" y="0"/><textFieldExpression><![CDATA[$F{username}]]></textFieldExpression></textField></band></detail></jasperReport>

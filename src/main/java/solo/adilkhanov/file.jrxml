@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              bottomMargin="20" columnWidth="555" language="groovy"
+              leftMargin="20" name="user_report" pageHeight="842" pageWidth="595" rightMargin="20" topMargin="20"
+              uuid="0bf6c571-f46c-42f2-949f-68e3c37a1b93"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd">
+    <queryString>
+        <![CDATA[SELECT username, password, email FROM user_]]>
+    </queryString>
+    <field class="java.lang.String" name="username"/>
+    <columnHeader>
+        <band height="30">
+            <staticText>
+                <reportElement height="30" uuid="7c2b053d-84f9-4763-a4a7-08d6ff7f1eeb" width="100" x="0" y="0"/>
+                <text>
+                    <![CDATA[Username]]>
+                </text>
+            </staticText>
+        </band>
+    </columnHeader>
+</jasperReport>

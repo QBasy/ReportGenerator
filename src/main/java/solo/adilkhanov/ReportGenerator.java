@@ -1,4 +1,4 @@
-package org.example;
+package solo.adilkhanov;
 
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JasperDesign;
@@ -24,6 +24,7 @@ public class ReportGenerator {
     }
 
     private JasperDesign loadTemplate(String templatePath) throws Exception {
+        System.out.println(templatePath);
         return JRXmlLoader.load(templatePath);
     }
 

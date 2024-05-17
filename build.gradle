@@ -10,9 +10,9 @@ repositories {
 }
 
 dependencies {
-    testImplementation platform('solo.junit:junit-bom:5.10.0')
-    testImplementation 'solo.junit.jupiter:junit-jupiter'
-    implementation 'solo.postgresql:postgresql:42.2.23'
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'org.postgresql:postgresql:42.2.23'
     implementation 'net.sf.jasperreports:jasperreports:6.17.0'
     implementation 'com.lowagie:itext:2.1.7'
 }
