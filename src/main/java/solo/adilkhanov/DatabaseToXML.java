@@ -21,10 +21,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class DatabaseToXML {
-
-    public static void main(String[] args) {
-        String tableName = "user_";
-
+    public static void getXML(String tableName) {
         try (Connection connection = PostgresSQLDB.connect()) {
             Map<String, String> columns = getTableStructure(connection, tableName);
 
@@ -166,7 +163,7 @@ public class DatabaseToXML {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File("C:/Users/s.adilkhanov/IdeaProjects/ReportGenerator/src/main/java/solo/adilkhanov/" + tableName + "_report.jrxml"));
+            StreamResult result = new StreamResult(new File( PropertiesReader.getProperties("exportPath") + tableName + "_report.jrxml"));
 
             transformer.transform(source, result);
 
