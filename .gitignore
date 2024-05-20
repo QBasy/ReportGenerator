@@ -16,7 +16,7 @@ build/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-!**/src/main/etc/generate.properties
+C:/Users/s.adilkhanov/IdeaProjects/ReportGenerator/src/main/etc/generate.properties
 
 ### Eclipse ###
 .apt_generated

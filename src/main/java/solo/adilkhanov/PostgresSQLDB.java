@@ -10,6 +10,7 @@ public class PostgresSQLDB {
     public static String PASSWORD = PropertiesReader.getProperties("postgresql.password");
 
     public static Connection connect() throws SQLException {
+        System.out.println("Connecting to database...");
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 }

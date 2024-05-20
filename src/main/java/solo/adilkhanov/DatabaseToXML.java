@@ -11,23 +11,33 @@ import java.util.*;
 import java.io.File;
 
 public class DatabaseToXML {
+    public static void getXML(String tableName, String[] columnsName, String customQuery) {
+        try (Connection connection = PostgresSQLDB.connect()) {
+            Map<String, String> columns = getTableStructure(connection, tableName, columnsName);
+            System.out.println(columns.size());
+            generateXML(columns, tableName, customQuery, columnsName);
+            System.out.println("File saved!");
+        } catch (SQLException | ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static void getXML(String tableName, String[] columnsName) {
         try (Connection connection = PostgresSQLDB.connect()) {
             Map<String, String> columns = getTableStructure(connection, tableName, columnsName);
-            generateXML(columns, tableName, columnsName);
-            System.out.println("File saved!");
-        } catch (SQLException e) {
-            e.printStackTrace();
+            String columnsNames = String.join(", ", columnsName);
+            String query = "SELECT " +  columnsNames + " FROM " + tableName;
+            generateXML(columns, tableName, query, columnsName);
+        } catch (SQLException | ParserConfigurationException e) {
+            throw new RuntimeException(e);
         }
     }
 
     private static Map<String, String> getTableStructure(Connection connection, String tableName, String[] columnsName) throws SQLException {
         Map<String, String> columns = new HashMap<>();
-        String query = "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = ?";
-
+        String query = "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '" + tableName + "';";
+        System.out.println(query);
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, tableName);
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
                     String columnName = resultSet.getString("column_name");
@@ -54,18 +64,17 @@ public class DatabaseToXML {
     private static String mapDataType(String dataType) {
         return switch (dataType) {
             case "character varying", "varchar", "text" -> "java.lang.String";
-            case "integer" -> "java.lang.Integer";
+            case "integer", "bigint" -> "java.lang.Integer";
             case "boolean" -> "java.lang.Boolean";
             default -> "java.lang.Object";
         };
     }
 
-    private static void generateXML(Map<String, String> columns, String tableName, String[] columnsName) {
+    private static void generateXML(Map<String, String> columns, String tableName, String customQuery, String[] columnsName) throws ParserConfigurationException {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
             Document doc = docBuilder.newDocument();
-
             Element rootElement = doc.createElement("jasperReport");
             doc.appendChild(rootElement);
             rootElement.setAttribute("xmlns", "http://jasperreports.sourceforge.net/jasperreports");
@@ -87,16 +96,16 @@ public class DatabaseToXML {
             attributes.forEach(rootElement::setAttribute);
 
             Element queryString = doc.createElement("queryString");
-            String columnsNames = String.join(", ", columnsName);
-            queryString.appendChild(doc.createCDATASection("SELECT " + columnsNames + " FROM " + tableName));
+            queryString.appendChild(doc.createCDATASection(customQuery));
             rootElement.appendChild(queryString);
 
-            columns.forEach((name, type) -> {
+            for (String columnName : columns.keySet()) {
+                String type = columns.get(columnName);
                 Element field = doc.createElement("field");
-                field.setAttribute("name", name);
+                field.setAttribute("name", columnName);
                 field.setAttribute("class", type);
                 rootElement.appendChild(field);
-            });
+            }
 
             Element title = doc.createElement("title");
             Element titleBand = doc.createElement("band");
@@ -111,33 +120,34 @@ public class DatabaseToXML {
             reportElementTitle.setAttribute("uuid", UUID.randomUUID().toString());
             staticTextTitle.appendChild(reportElementTitle);
 
-            Element textElementTitle = doc.createElement("textElement");
+            Element textElementTitle = createTitleTextElement(doc, "Times New Roman", "14", "true");
+            staticTextTitle.appendChild(textElementTitle);
             textElementTitle.setAttribute("textAlignment", "Center");
-            Element fontTitle = doc.createElement("font");
-            fontTitle.setAttribute("fontName", "Times New Roman");
-            fontTitle.setAttribute("size", "14");
-            fontTitle.setAttribute("isBold", "true");
-            textElementTitle.appendChild(fontTitle);
             staticTextTitle.appendChild(textElementTitle);
 
             Element textTitle = doc.createElement("text");
-            textTitle.appendChild(doc.createCDATASection(tableName));
+            textTitle.appendChild(doc.createCDATASection(tableName.toUpperCase()));
             staticTextTitle.appendChild(textTitle);
             titleBand.appendChild(staticTextTitle);
             title.appendChild(titleBand);
             rootElement.appendChild(title);
 
+            int numColumns = columns.size();
+            int totalWidth = 555;
+            int columnWidth = totalWidth / numColumns;
+            int startX = (565 - (columnWidth * numColumns)) / 2;
+
             Element columnHeader = doc.createElement("columnHeader");
             Element columnBand = doc.createElement("band");
             columnBand.setAttribute("height", "30");
-            addColumnHeader(doc, columnBand, columns);
+            addColumnHeader(doc, columnBand, columns, startX, columnWidth);
             columnHeader.appendChild(columnBand);
             rootElement.appendChild(columnHeader);
 
             Element detail = doc.createElement("detail");
             Element detailBand = doc.createElement("band");
             detailBand.setAttribute("height", "30");
-            addDetailSection(doc, detailBand, columns);
+            addDetailSection(doc, detailBand, columns, startX, columnWidth);
             detail.appendChild(detailBand);
             rootElement.appendChild(detail);
 
@@ -147,19 +157,20 @@ public class DatabaseToXML {
             StreamResult result = new StreamResult(new File(PropertiesReader.getProperties("importPath") + tableName + "_report.jrxml"));
             transformer.transform(source, result);
 
-        } catch (ParserConfigurationException | TransformerException e) {
+        } catch (TransformerException e) {
             e.printStackTrace();
         }
     }
 
-    private static void addColumnHeader(Document doc, Element band, Map<String, String> columns) {
-        int x = 90;
+
+    private static void addColumnHeader(Document doc, Element band, Map<String, String> columns, int startX, int columnWidth) {
+        int x = startX;
         for (String columnName : columns.keySet()) {
             Element staticText = doc.createElement("staticText");
             Element reportElement = doc.createElement("reportElement");
             reportElement.setAttribute("x", String.valueOf(x));
             reportElement.setAttribute("y", "0");
-            reportElement.setAttribute("width", "100");
+            reportElement.setAttribute("width", String.valueOf(columnWidth));
             reportElement.setAttribute("height", "30");
             staticText.appendChild(reportElement);
 
@@ -167,25 +178,42 @@ public class DatabaseToXML {
             staticText.appendChild(box);
 
             Element textElement = createTextElement(doc);
+            Element fontTitle = doc.createElement("font");
+            fontTitle.setAttribute("fontName", "Times New Roman");
+            fontTitle.setAttribute("is_bold", "true");
             staticText.appendChild(textElement);
 
             Element text = doc.createElement("text");
-            text.appendChild(doc.createCDATASection(columnName));
+            text.appendChild(doc.createCDATASection(columnName.toUpperCase()));
             staticText.appendChild(text);
 
             band.appendChild(staticText);
-            x += 100;
+            x += columnWidth;
         }
     }
 
-    private static void addDetailSection(Document doc, Element band, Map<String, String> columns) {
-        int x = 90;
+    private static Element createTitleTextElement(Document doc, String fontName, String fontSize, String isBold) {
+        Element textElement = doc.createElement("textElement");
+        textElement.setAttribute("textAlignment", "Center");
+
+        Element font = doc.createElement("font");
+        font.setAttribute("fontName", fontName);
+        font.setAttribute("size", fontSize);
+        font.setAttribute("isBold", isBold);
+        textElement.appendChild(font);
+
+        return textElement;
+    }
+
+
+    private static void addDetailSection(Document doc, Element band, Map<String, String> columns, int startX, int columnWidth) {
+        int x = startX;
         for (String columnName : columns.keySet()) {
             Element textField = doc.createElement("textField");
             Element reportElement = doc.createElement("reportElement");
             reportElement.setAttribute("x", String.valueOf(x));
             reportElement.setAttribute("y", "0");
-            reportElement.setAttribute("width", "100");
+            reportElement.setAttribute("width", String.valueOf(columnWidth));
             reportElement.setAttribute("height", "30");
             textField.appendChild(reportElement);
 
@@ -200,7 +228,7 @@ public class DatabaseToXML {
             textField.appendChild(textFieldExpression);
 
             band.appendChild(textField);
-            x += 100;
+            x += columnWidth;
         }
     }
 
