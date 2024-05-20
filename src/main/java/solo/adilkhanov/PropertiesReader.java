@@ -10,7 +10,7 @@ public class PropertiesReader {
 
     static {
         try {
-            fileInputStream = new FileInputStream("C:/Users/s.adilkhanov/IdeaProjects/ReportGenerator/src/main/etc/generate.properties");
+            fileInputStream = new FileInputStream("./src/main/etc/generate.properties");
             properties.load(fileInputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);
